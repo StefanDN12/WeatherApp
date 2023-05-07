@@ -1,5 +1,9 @@
 package com.stefan.weatherapp.dataclases
 
+import androidx.room.Embedded
+import androidx.room.Entity
+
+//@Entity
 data class WeatherModel(
     val address: String,
     val currentConditions: CurrentConditions,

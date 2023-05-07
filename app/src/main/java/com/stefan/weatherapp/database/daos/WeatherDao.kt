@@ -6,6 +6,6 @@ import com.stefan.weatherapp.dataclases.WeatherModel
 
 @Dao
 interface WeatherDao {
-    @Insert
-    fun insertAll(vararg weatherModel: WeatherModel)
+//    @Insert
+//    fun insertAll(vararg weatherModel: WeatherModel)
 }
