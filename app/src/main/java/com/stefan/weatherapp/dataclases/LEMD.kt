@@ -1,5 +1,7 @@
 package com.stefan.weatherapp.dataclases
 
+import java.io.Serializable
+
 data class LEMD(
     val contribution: Double,
     val distance: Double,
@@ -9,4 +11,4 @@ data class LEMD(
     val name: String,
     val quality: Int,
     val useCount: Int
-)
+): Serializable

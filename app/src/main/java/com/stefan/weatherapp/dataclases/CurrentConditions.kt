@@ -1,5 +1,7 @@
 package com.stefan.weatherapp.dataclases
 
+import java.io.Serializable
+
 data class CurrentConditions(
     val cloudcover: Double,
     val conditions: String,
@@ -30,4 +32,4 @@ data class CurrentConditions(
     val winddir: Double,
     val windgust: Any,
     val windspeed: Double
-)
+): Serializable

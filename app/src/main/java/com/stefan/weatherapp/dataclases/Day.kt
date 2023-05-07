@@ -1,5 +1,7 @@
 package com.stefan.weatherapp.dataclases
 
+import java.io.Serializable
+
 data class Day(
     val cloudcover: Double,
     val conditions: String,
@@ -37,4 +39,4 @@ data class Day(
     val winddir: Double,
     val windgust: Double,
     val windspeed: Double
-)
+): Serializable
