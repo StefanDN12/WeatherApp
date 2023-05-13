@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.stefan.weatherapp.databinding.ActivityMainBinding
+import com.stefan.weatherapp.viewmodels.NotificationViewModel
 import com.stefan.weatherapp.viewmodels.WeatherViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -18,6 +20,8 @@ import kotlin.math.roundToInt
 
 class WeatherActivity : AppCompatActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
+    private lateinit var notificationViewModel: NotificationViewModel
+
     private lateinit var binding: ActivityMainBinding
     private val currentDate = LocalDate.now().dayOfMonth
 
@@ -27,6 +31,8 @@ class WeatherActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         weatherViewModel.onCreate()
+        notificationViewModel = NotificationViewModel(this)
+
         Log.d("Fecha", currentDate.toString())
 
         binding.apply {
@@ -39,6 +45,8 @@ class WeatherActivity : AppCompatActivity() {
                     imgVWeatherIcon.isVisible = true
                     txtWeatherCondition.isVisible = true
                     cardLayout.isVisible = true
+                    txtToday.isVisible = true
+                    notificationViewModel.startNotificationService(this@WeatherActivity)
                 }
 
             })
@@ -46,8 +54,16 @@ class WeatherActivity : AppCompatActivity() {
             weatherViewModel.weatherModel.observe(LifecycleOwner, Observer { weatherResponse ->
                 weatherResponse.days.forEach { day ->
                     when {
+
                         (currentDate == day.datetime.split("-")[2].toInt()) -> {
+
                             txtWeatherTemp.text = "${((((day.temp - 32) * 5) / 9).roundToInt())}°"
+
+                            notificationViewModel.updateTemperature(((((day.temp - 32) * 5) / 9).roundToInt()))
+                            notificationViewModel.updateHumidity(day.humidity.roundToInt())
+                            notificationViewModel.updateCondition(day.conditions)
+
+
                             txtHumidity.text = "H" + day.humidity.roundToInt()
                             imgVWeatherIcon.setImageResource(
                                 resources.getIdentifier(
@@ -63,20 +79,14 @@ class WeatherActivity : AppCompatActivity() {
                             txtWeatherCondition.text = day.conditions
                         }
                     }
-                    Log.d(
-                        "DAY",
-                        LocalDate.parse(
-                            day.datetime,
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        ).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    )
                 }
-                this.txtDay1.text = LocalDate.parse(
-                    weatherResponse.days[2].datetime,
+                txtToday.text = LocalDate.parse(weatherResponse.days[0].datetime,DateTimeFormatter.ofPattern("yyyy-MM-dd")).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    this.txtDay1.text = LocalDate.parse(
+                    weatherResponse.days[1].datetime,
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).take(3)
                 this.txtDay2.text = LocalDate.parse(
-                    weatherResponse.days[1].datetime,
+                    weatherResponse.days[2].datetime,
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).take(3)
                 this.txtDay3.text = LocalDate.parse(
@@ -111,5 +121,11 @@ class WeatherActivity : AppCompatActivity() {
 
             })
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        notificationViewModel.onCleared()
     }
 }
